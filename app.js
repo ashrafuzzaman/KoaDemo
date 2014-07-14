@@ -1,21 +1,25 @@
 'use strict';
-var messages = require('./controllers/messages');
-var compress = require('koa-compress');
-var logger = require('koa-logger');
-var serve = require('koa-static');
-var route = require('koa-route');
-var koa = require('koa');
-var path = require('path');
-var app = module.exports = koa();
+var compress = require('koa-compress'),
+    logger = require('koa-logger'),
+    serve = require('koa-static'),
+    route = require('koa-route'),
+    koa = require('koa'),
+    path = require('path'),
+    app = module.exports = koa();
 
 // Logger
 app.use(logger());
 
-app.use(route.get('/', messages.home));
-app.use(route.get('/messages', messages.list));
-app.use(route.get('/messages/:id', messages.fetch));
-app.use(route.post('/messages', messages.create));
-app.use(route.get('/async', messages.delay));
+// load('./routes.js');
+var routes = require('./routes');
+
+// var messages = require('./controllers/messages');
+// app.use(route.get('/', messages.home));
+// app.use(route.get('/messages', messages.list));
+// app.use(route.get('/messages/:id', messages.fetch));
+// app.use(route.post('/messages', messages.create));
+// app.use(route.get('/async', messages.delay));
+
 
 // Serve static files
 app.use(serve(path.join(__dirname, 'public')));
