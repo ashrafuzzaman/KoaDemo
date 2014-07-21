@@ -1,21 +1,21 @@
 'use strict';
 var views = require('co-views');
 var parse = require('co-body');
-var messages = [
-  { id: 0, message: 'Koa next generation web framework for node.js' },
-  { id: 1, message: 'Koa is a new web framework designed by the team behind Express' }
-];
+
+var db = require('monk')('localhost/koaDemo');
+var wrap = require('co-monk');
+var messages = wrap(db.get('messages'));
 
 var render = views(__dirname + '/../views', {
   map: { html: 'swig' }
 });
 
 module.exports.home = function *home() {
-  this.body = yield render('list', { 'messages': messages });
+  this.body = yield render('list', { 'messages': (yield messages.find({})) });
 };
 
 module.exports.list = function *list() {
-  this.body = yield messages;
+  this.body = yield messages.find({});
 };
 
 module.exports.fetch = function *fetch(id) {
@@ -28,20 +28,7 @@ module.exports.fetch = function *fetch(id) {
 
 module.exports.create = function *create() {
   var message = yield parse(this);
-  var id = messages.push(message) - 1;
-  message.id = id;
+  console.log(message);
+  message = messages.insert(message);
   this.redirect('/');
-};
-
-function doSomeAsync() {
-  return function (callback) {
-    setTimeout(function () {
-      callback(null, 'this was loaded asynchronously and it took 3 seconds to complete');
-    }, 3000);
-  };
-}
-
-// One way to deal with asynchronous call
-module.exports.delay = function *delay() {
-  this.body = yield doSomeAsync();
 };
